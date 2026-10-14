@@ -45,8 +45,8 @@ Then open `.env` and paste the licence keys from your Nutrient contact:
 |---|---|---|
 | `DOCUMENT_ENGINE_ACTIVATION_KEY` | Document Engine (PDF storage, collaboration, export) | Required |
 | `WEB_SDK_LICENSE_KEY` | PDF viewer in the browser | Viewer runs in trial mode |
-| `DOCAUTH_LICENSE_KEY` | Word editor in the browser | Editor runs in evaluation mode |
-| `DOCAUTH_NODE_LICENSE_KEY` | Document Authoring on the server (DOCX import, the clean publish, comment extraction). The key must include the **Node.js Server-Side Runtime** feature. | Runs in evaluation mode: **1 hour per server start**, and exported PDFs carry a watermark |
+| `DOCAUTH_LICENSE_KEY` | Document Authoring, **in the browser and on the server** (DOCX import, the clean publish, comment extraction). For the server, the key must include the **Node.js Server-Side Runtime** feature. | Editor runs in evaluation mode. On the server, a missing key or one without the Node.js feature means evaluation mode: **1 hour per server start**, and exported PDFs carry a watermark. The API logs a warning when this happens. |
+| `DOCAUTH_NODE_LICENSE_KEY` | Optional. Use only if you were given a separate key for the Node.js runtime; it overrides `DOCAUTH_LICENSE_KEY` on the server. | Not needed |
 
 Browser keys are tied to domains. `localhost` works for local evaluation; any other hostname needs keys issued for it.
 
@@ -165,8 +165,8 @@ There's no sign-in. Switch user with **Signed in as** in the top bar, or with `?
 | Symptom | Fix |
 |---|---|
 | API log: `Waiting for Document Engine at http://localhost:5001…` | Document Engine isn't up yet. Run `docker compose ps` and `docker compose logs document_engine`. The first start takes a minute after the image download. |
-| `The license does not include the entitlement required to run Document Authoring in Node.js` | `DOCAUTH_NODE_LICENSE_KEY` doesn't include the Node.js Server-Side Runtime feature. Ask for a key that does, or leave it empty to use evaluation mode. |
-| Uploads, publishing or summaries stop working after about an hour | Document Authoring on the server is in evaluation mode (no `DOCAUTH_NODE_LICENSE_KEY`). Restart `npm run dev`. |
+| API log: `The Document Authoring key has no Node.js Server-Side Runtime entitlement` | Your key works in the browser but not on the server, so the server is in evaluation mode. Ask for a key that includes the Node.js runtime and put it in `DOCAUTH_LICENSE_KEY` (or `DOCAUTH_NODE_LICENSE_KEY` if it's a separate key). |
+| Uploads, publishing or summaries stop working after about an hour | Document Authoring on the server is in evaluation mode (see the row above). Restart `npm run dev`. |
 | You changed `DOCUMENT_ENGINE_ACTIVATION_KEY` | Recreate the container: `docker compose up -d --force-recreate document_engine`. |
 | PDF viewer error: `The mounting container has no width` | The window is too narrow. Widen it (about 1,000 px or more) and reload. |
 | `EADDRINUSE` on 3001, 5001 or 5173 | Another process is using the port. Stop it, or change `API_PORT` in `.env` and the port in `vite.config.js` / `docker-compose.yml`. |

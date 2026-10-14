@@ -5,8 +5,29 @@ import { createDocAuthSystem } from '@nutrient-sdk/document-authoring/node';
 
 let systemPromise = null;
 
+// One Document Authoring key normally covers both the browser and Node.js. Use
+// DOCAUTH_NODE_LICENSE_KEY only if Licensor issues a separate key for the Node runtime.
+// If the key lacks the Node.js entitlement, fall back to evaluation mode instead of failing.
+async function createSystem() {
+	const licenseKey = process.env.DOCAUTH_NODE_LICENSE_KEY || process.env.DOCAUTH_LICENSE_KEY;
+	if (licenseKey) {
+		try {
+			return await createDocAuthSystem({ licenseKey });
+		} catch (e) {
+			if (!/entitlement|capabilities/i.test(e.message)) throw e;
+			console.warn(
+				'\n⚠️  The Document Authoring key has no Node.js Server-Side Runtime entitlement.\n' +
+					'   Server-side import, publish and comment extraction run in evaluation mode\n' +
+					'   (1 hour per server start, watermarked PDF exports). Ask Nutrient for a key that\n' +
+					'   includes the Node.js runtime, then set DOCAUTH_LICENSE_KEY (or DOCAUTH_NODE_LICENSE_KEY).\n',
+			);
+		}
+	}
+	return createDocAuthSystem({});
+}
+
 function system() {
-	systemPromise ??= createDocAuthSystem(process.env.DOCAUTH_NODE_LICENSE_KEY ? { licenseKey: process.env.DOCAUTH_NODE_LICENSE_KEY } : {});
+	systemPromise ??= createSystem();
 	return systemPromise;
 }
 
