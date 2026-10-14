@@ -1,0 +1,33 @@
+{
+  "name": "skyjed-nutrient-demo",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Skyjed x Nutrient prototype: in-platform review, parallel approval and clean publish for Word and PDF communications.",
+  "scripts": {
+    "setup": "node scripts/setup.mjs",
+    "engine": "docker compose up -d",
+    "postinstall": "node scripts/copy-viewer-assets.mjs",
+    "server": "node --watch-path=server --env-file=.env server/index.mjs",
+    "client": "vite",
+    "dev": "concurrently -n server,client -c blue,green \"npm:server\" \"npm:client\"",
+    "reset": "node scripts/reset.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@nutrient-sdk/document-authoring": "1.22.1",
+    "@nutrient-sdk/viewer": "1.23.0",
+    "express": "4.21.2",
+    "jsonwebtoken": "9.0.2",
+    "multer": "1.4.5-lts.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "concurrently": "9.1.2",
+    "vite": "6.0.7"
+  }
+}

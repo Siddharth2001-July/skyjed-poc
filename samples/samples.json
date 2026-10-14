@@ -1,0 +1,6 @@
+{
+	"Bank_Sample_1_Simple_Word_Letter_2.docx": { "title": "Savings rate change letter", "risk": "Medium", "frequencyMonths": 12 },
+	"Bank_Sample_2_Designed_Word_Letter_2.docx": { "title": "Credit card changes notice", "risk": "High", "frequencyMonths": 12 },
+	"Bank_Sample_3_Simple_PDF_Notice_2.pdf": { "title": "Branch relocation notice", "risk": "Low", "frequencyMonths": 36 },
+	"Bank_Sample_4_Complex_Designed_PDF_Guide_1.pdf": { "title": "Accounts, fees and charges guide", "risk": "High", "frequencyMonths": 12 }
+}

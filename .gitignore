@@ -1,0 +1,13 @@
+node_modules/
+data/
+dist/
+keys/
+.env
+docker-compose.yml
+client/public/nutrient-viewer-lib/
+.DS_Store
+
+# Customer documents are not committed. Drop your own into samples/.
+samples/*
+!samples/README.md
+!samples/samples.json
