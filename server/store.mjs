@@ -1,7 +1,7 @@
 // Minimal JSON-file persistence standing in for Skyjed's own database.
 // Everything here (assets, approvals, audit trail, locks) is Skyjed-owned state;
 // Nutrient components never need to know about it.
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 
 export const DATA_DIR = 'data';
@@ -37,4 +37,18 @@ export function audit(asset, userId, action, detail = '') {
 
 export function newId(prefix) {
 	return `${prefix}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+}
+
+// Delete all demo data (register, working copies, vault). Vault files are read-only,
+// so make everything writable before removing it.
+export function wipe() {
+	const unlock = (p) => {
+		chmodSync(p, 0o755);
+		if (statSync(p).isDirectory()) for (const f of readdirSync(p)) unlock(`${p}/${f}`);
+	};
+	if (existsSync(DATA_DIR)) {
+		unlock(DATA_DIR);
+		rmSync(DATA_DIR, { recursive: true });
+	}
+	db = { assets: [] };
 }

@@ -31,7 +31,7 @@ async function download(documentId, query = '') {
 	return Buffer.from(await res.arrayBuffer());
 }
 
-async function deleteDocument(documentId) {
+export async function deleteDocument(documentId) {
 	await fetch(`${DE()}/api/documents/${documentId}`, { method: 'DELETE', headers: auth() });
 }
 

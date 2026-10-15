@@ -8,7 +8,7 @@ import express from 'express';
 import multer from 'multer';
 import * as da from './docauth.mjs';
 import * as de from './engine.mjs';
-import { DATA_DIR, USERS, audit, getAsset, load, newId, save } from './store.mjs';
+import { DATA_DIR, USERS, audit, getAsset, load, newId, save, wipe } from './store.mjs';
 
 const app = express();
 app.use(express.json({ limit: '50mb' }));
@@ -374,8 +374,23 @@ async function seed() {
 	save();
 }
 
+// Start over: remove every asset (and its Document Engine documents), the working
+// copies and the vault, then load samples/ again.
+let seeding = null;
+app.post('/api/reset', route(async (req, res) => {
+	as(req);
+	if (seeding) await seeding.catch(() => {});
+	const docIds = load().assets.flatMap((a) => [a.pdf?.documentId, ...(a.pdf?.previousDocumentIds ?? []), a.approvalPdfId]).filter(Boolean);
+	wipe();
+	await Promise.all(docIds.map((id) => de.deleteDocument(id).catch(() => {})));
+	seeding = seed();
+	await seeding;
+	res.json({ assets: load().assets.length });
+}));
+
 const port = Number(process.env.API_PORT ?? 3001);
 app.listen(port, () => {
 	console.log(`Demo API on http://localhost:${port}`);
-	seed().catch((e) => console.error('Seeding failed', e));
+	seeding = seed();
+	seeding.catch((e) => console.error('Seeding failed', e));
 });

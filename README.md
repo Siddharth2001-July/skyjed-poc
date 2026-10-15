@@ -78,11 +78,9 @@ Open **http://localhost:5173/?as=alex**. To see collaboration, open a second win
 
 ### Reset
 
-```bash
-npm run reset
-```
+Click **Reset demo** on the register to start over. It deletes every communication, version, approval and vault file, removes their documents from Document Engine, and reloads `samples/`.
 
-This clears the register, working copies and vault. Then restart `npm run dev`, and the register is reloaded from `samples/`.
+From the command line (with the app stopped), `npm run reset` does the same for the local data; the next `npm run dev` reloads `samples/`.
 
 ---
 

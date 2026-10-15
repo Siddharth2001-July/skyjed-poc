@@ -34,6 +34,20 @@ export default function Register({ config, user }) {
 		}
 	}
 
+	async function onReset() {
+		if (!confirm('Reset the demo? This deletes every communication, version, approval and vault file, then reloads the documents in samples/.')) return;
+		setBusy('Resetting the demo and reloading samples…');
+		setError('');
+		try {
+			await api.post('/reset');
+			await refresh();
+		} catch (err) {
+			setError(err.message);
+		} finally {
+			setBusy('');
+		}
+	}
+
 	async function onBlank() {
 		const title = prompt('Name of the new communication', 'Hardship assistance letter');
 		if (!title) return;
@@ -53,8 +67,12 @@ export default function Register({ config, user }) {
 					<h1>Communications register</h1>
 					<p className="muted">Customer-facing documents, their risk rating, and when each one is due for review. Open one to draft, review, approve and publish it without leaving the platform.</p>
 				</div>
-				{user.kind === 'author' && (
-					<div className="register-actions">
+				<div className="register-actions">
+					<button className="btn" onClick={onReset} disabled={!!busy} title="Delete all demo data and start again">
+						Reset demo
+					</button>
+					{user.kind === 'author' && (
+						<>
 						<button className="btn" onClick={onBlank} disabled={!!busy}>
 							New from blank
 						</button>
@@ -62,8 +80,9 @@ export default function Register({ config, user }) {
 							Upload Word or PDF
 						</button>
 						<input ref={fileRef} type="file" accept=".docx,.pdf,.rtf,.odt" hidden onChange={onUpload} />
-					</div>
-				)}
+						</>
+					)}
+				</div>
 			</div>
 			{busy && <div className="notice">{busy}</div>}
 			{error && <div className="notice error">{error}</div>}
