@@ -21,6 +21,8 @@ export default function PdfViewer({ asset, config, user, onReady }) {
 	const container = useRef(null);
 	const [status, setStatus] = useState('Connecting to Document Engine…');
 	const [session, setSession] = useState(null);
+	const [viewer, setViewer] = useState(null);
+	const [editingText, setEditingText] = useState(false);
 
 	useEffect(() => {
 		let instance;
@@ -46,11 +48,15 @@ export default function PdfViewer({ asset, config, user, onReady }) {
 			if (cancelled) return NutrientViewer.unload(el);
 			instance.setAnnotationCreatorName(user.name);
 			Object.assign(window, { viewerInstance: instance, NutrientViewer }); // handy for poking at the SDK from the console
+			instance.addEventListener('viewState.change', (vs) => setEditingText(vs.interactionMode === NutrientViewer.InteractionMode.CONTENT_EDITOR));
+			setViewer(instance);
 			setStatus('');
 			onReady?.(instance);
 		})().catch((e) => setStatus(`Could not open the PDF: ${e.message}`));
 		return () => {
 			cancelled = true;
+			setViewer(null);
+			setEditingText(false);
 			NutrientViewer.unload(el);
 		};
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,6 +74,15 @@ export default function PdfViewer({ asset, config, user, onReady }) {
 				<span className="pill">
 					Web SDK + Document Engine{asset.format === 'word' ? ' · approval snapshot' : ''} · {capLabel ?? '…'}
 				</span>
+				{session?.capability === 'author' && viewer && !editingText && (
+					<button
+						className="btn primary small"
+						onClick={() => viewer.setViewState((v) => v.set('interactionMode', NutrientViewer.InteractionMode.CONTENT_EDITOR))}
+					>
+						Edit page text
+					</button>
+				)}
+				{editingText && <span className="pill">Editing page text: click a text block, then Save &amp; Close in the toolbar</span>}
 				{session?.capability !== 'read' && session && (
 					<span className="pill live">
 						<span className="dot" /> Live: changes from other users sync in real time
