@@ -8,7 +8,7 @@
     "setup": "node scripts/setup.mjs",
     "engine": "docker compose up -d",
     "postinstall": "node scripts/copy-viewer-assets.mjs",
-    "server": "node --watch-path=server --env-file=.env server/index.mjs",
+    "server": "node --env-file=.env server/index.mjs",
     "client": "vite",
     "dev": "concurrently -n server,client -c blue,green \"npm:server\" \"npm:client\"",
     "reset": "node scripts/reset.mjs"
